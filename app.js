@@ -179,3 +179,23 @@ $("cover-file").addEventListener("change", (e) => {
   if (f) setCover({ blob: f, url: URL.createObjectURL(f) });
 });
 $("cover-remove").addEventListener("click", () => setCover(null));
+
+// PWA: offline cache + install button
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').then(() => navigator.serviceWorker.ready).then(() => {
+    $('offline-status').textContent = 'Ready to work offline.'
+  }).catch(() => {})
+}
+let installEvent = null
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault()
+  installEvent = e
+  $('install').hidden = false
+})
+$('install').addEventListener('click', async () => {
+  if (!installEvent) return
+  installEvent.prompt()
+  await installEvent.userChoice
+  installEvent = null
+  $('install').hidden = true
+})
